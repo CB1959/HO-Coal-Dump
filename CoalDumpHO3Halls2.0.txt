@@ -1,0 +1,173 @@
+#define step_pin 6  // Pin 6 connected to Step
+#define dir_pin 5   // Pin 5 connected to Direction 
+#define KEY 4 // Pin 4 connected to Key
+#define SLEEP 9     // Pin 9 connected to SLEEP 
+#define START 3 // Pin 3 connected to Start
+#define HSW 10  //Pin 10 connected to Home(Top of hill)Hall board
+#define BSW 11  //Pin 11 connected to Middle(Middle of hill)Hall board
+#define SSW 12  //Pin 12 connected to Switch(By the switch)Hall board
+
+const int Top = 1;  // Top of hill
+const int Bottom = 2;  // At bottom of hill
+
+const int Switch = 3; // At switch loacation
+
+int POS = 0;  //Current Location
+int Dwell = 500; //Set delay time between movements
+void setup() {
+
+  Serial.begin(9600);
+  Serial.println("Nampa Coal Dump 3 Hall Boards");
+  Serial.println(__FILE__);
+  Serial.println(__DATE__);
+
+  pinMode(dir_pin, OUTPUT);
+  pinMode(step_pin, OUTPUT);
+  pinMode(SLEEP, OUTPUT);
+  pinMode(START, INPUT_PULLUP);
+  pinMode(KEY, INPUT_PULLUP);
+  pinMode(HSW, INPUT_PULLUP);
+  pinMode(BSW, INPUT_PULLUP);
+  pinMode(SSW, INPUT_PULLUP);
+  delay(5000);
+
+
+  {
+    // Do Home routine
+    while (digitalRead(HSW) == HIGH)
+
+    {
+      digitalWrite(SLEEP, HIGH);
+      digitalWrite(dir_pin, HIGH);  // (HIGH = positve / LOW = negative)
+      digitalWrite(step_pin, HIGH);
+      delayMicroseconds(750);
+      digitalWrite(step_pin, LOW);
+      delayMicroseconds(750);
+
+
+    }
+
+  }
+
+
+  digitalWrite(SLEEP, LOW);  //Put Driver to Sleep
+  delay(50);
+
+  POS = 1; // Set current location to 1 Top
+
+
+
+}
+
+void loop() {
+  // move from Top to Bottom with start only
+  if ((digitalRead(START) == LOW)  && (digitalRead(KEY) == HIGH) && (POS) == 1)
+
+  {
+    digitalWrite(SLEEP, HIGH);
+    delay(50);  // Wait for Driver wake up
+    while (digitalRead(BSW) == HIGH) {
+      digitalWrite(dir_pin, LOW);  // (HIGH = positve / LOW = negative)
+      digitalWrite(step_pin, HIGH);
+      delayMicroseconds(750);
+      digitalWrite(step_pin, LOW);
+      delayMicroseconds(750);
+
+
+    }
+    delay(Dwell);
+    POS = 2;  // Set current location to 2 Bottom
+  }
+  //Move from Bottom to Top with start only
+  if ((digitalRead(START) == LOW) && (digitalRead(KEY) == HIGH) && (POS) == 2)
+
+  {
+    digitalWrite(SLEEP, HIGH);
+    delay(50);  // Wait for Driver wake up
+    while (digitalRead(HSW) == HIGH) {
+      digitalWrite(dir_pin, HIGH);  // (HIGH = positve / LOW = negative)
+      digitalWrite(step_pin, HIGH);
+      delayMicroseconds(750);
+      digitalWrite(step_pin, LOW);
+      delayMicroseconds(750);
+
+    }
+
+    delay(Dwell);
+    POS = 1;  // Set current location to 1 Top
+  }
+  //Move from Switch to Top with Start only
+  if ((digitalRead(START) == LOW) && (digitalRead(KEY) == HIGH) && (POS) == 3)
+
+  {
+    digitalWrite(SLEEP, HIGH);
+    delay(50);  // Wait for Driver wake up
+    while (digitalRead(HSW) == HIGH) {
+      digitalWrite(dir_pin, HIGH);  // (HIGH = positve / LOW = negative)
+      digitalWrite(step_pin, HIGH);
+      delayMicroseconds(750);
+      digitalWrite(step_pin, LOW);
+      delayMicroseconds(750);
+
+
+    }
+
+    delay(Dwell);
+    POS = 1;  // Set current location to 1 Top
+  }
+  //Move from Top to Switch with Satrt and Key
+  if ((digitalRead(START) == LOW) && (digitalRead(KEY) == LOW) && (POS) == 1)
+
+  {
+    digitalWrite(SLEEP, HIGH);
+    delay(50);  // Wait for Driver wake up
+    while (digitalRead(SSW) == HIGH) {
+      digitalWrite(dir_pin, LOW);  // (HIGH = positve / LOW = negative)
+      digitalWrite(step_pin, HIGH);
+      delayMicroseconds(750);
+      digitalWrite(step_pin, LOW);
+      delayMicroseconds(750);
+
+    }
+    delay(Dwell);
+    POS = 3;  // Set current location to 3 Switch
+  }
+  //Move from Bottom to Switch with Start and Key
+  if ((digitalRead(START) == LOW) && (digitalRead(KEY) == LOW) && (POS) == 2)
+
+  {
+    digitalWrite(SLEEP, HIGH);
+    delay(50);  // Wait for Driver wake up
+    while (digitalRead(SSW) == HIGH) {
+      digitalWrite(dir_pin, LOW);  // (HIGH = positve / LOW = negative)
+      digitalWrite(step_pin, HIGH);
+      delayMicroseconds(750);
+      digitalWrite(step_pin, LOW);
+      delayMicroseconds(750);
+
+    }
+    delay(Dwell);
+    POS = 3;  // Set current location to 3 Switch
+  }
+  //Move from Switch to Top with Start and Key
+  if ((digitalRead(START) == LOW) && (digitalRead(KEY) == LOW) && (POS) == 3)
+
+  {
+    digitalWrite(SLEEP, HIGH);
+    delay(50);  // Wait for Driver wake up
+    while (digitalRead(HSW) == HIGH) {
+      digitalWrite(dir_pin, HIGH);  // (HIGH = positve / LOW = negative)
+      digitalWrite(step_pin, HIGH);
+      delayMicroseconds(750);
+      digitalWrite(step_pin, LOW);
+      delayMicroseconds(750);
+
+
+    }
+
+    delay(Dwell);
+    POS = 1;  //Set position to
+  }
+  digitalWrite(SLEEP, LOW);
+  delay(50);
+}
